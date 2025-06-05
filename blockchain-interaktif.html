@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blockchain Interaktif</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f0f0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .form {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      width: 300px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px 20px;
+      margin-left: 10px;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .block {
+      border: 2px solid #333;
+      border-radius: 10px;
+      background: white;
+      padding: 15px;
+      margin: 20px auto;
+      width: 320px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    }
+    .arrow {
+      font-size: 24px;
+      text-align: center;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Visualisasi Blockchain Interaktif</h1>
+
+  <div class="form">
+    <input type="text" id="dataInput" placeholder="Masukkan data blok...">
+    <button onclick="addBlock()">Tambah Blok</button>
+  </div>
+
+  <div id="blockchainDisplay"></div>
+
+  <script>
+    class Block {
+      constructor(index, timestamp, data, previousHash) {
+        this.index = index;
+        this.timestamp = timestamp;
+        this.data = data;
+        this.previousHash = previousHash;
+        this.hash = this.calculateHash();
+      }
+
+      calculateHash() {
+        return btoa(this.index + this.timestamp + this.data + this.previousHash).substr(0, 15);
+      }
+    }
+
+    const blockchain = [];
+
+    function createGenesisBlock() {
+      return new Block(0, new Date().toLocaleString(), "Genesis Block", "0");
+    }
+
+    function addBlockToChain(data) {
+      const previousBlock = blockchain[blockchain.length - 1];
+      const newBlock = new Block(
+        blockchain.length,
+        new Date().toLocaleString(),
+        data,
+        previousBlock.hash
+      );
+      blockchain.push(newBlock);
+      displayBlockchain();
+    }
+
+    function addBlock() {
+      const input = document.getElementById("dataInput");
+      const data = input.value.trim();
+      if (data === "") return;
+      addBlockToChain(data);
+      input.value = "";
+    }
+
+    function displayBlockchain() {
+      const container = document.getElementById("blockchainDisplay");
+      container.innerHTML = "";
+      blockchain.forEach((block, index) => {
+        const blockDiv = document.createElement("div");
+        blockDiv.className = "block";
+        blockDiv.innerHTML = `
+          <strong>Blok #${block.index}</strong><br>
+          Waktu: ${block.timestamp}<br>
+          Data: ${block.data}<br>
+          Hash: ${block.hash}<br>
+          Prev Hash: ${block.previousHash}
+        `;
+        container.appendChild(blockDiv);
+        if (index < blockchain.length - 1) {
+          const arrow = document.createElement("div");
+          arrow.className = "arrow";
+          arrow.innerHTML = "⬇️";
+          container.appendChild(arrow);
+        }
+      });
+    }
+
+    // Inisialisasi Genesis Block
+    blockchain.push(createGenesisBlock());
+    displayBlockchain();
+  </script>
+
+</body>
+</html>
